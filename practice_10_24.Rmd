@@ -1,0 +1,43 @@
+---
+title: "Practice 10/24"
+author: "Olly Gill"
+date: "10/24/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(sf)
+library(readr)
+```
+
+```{r}
+download.file("https://stacks.stanford.edu/file/druid:hp256wp2687/hp256wp2687_ct_hartford_shapefiles_2019_08_13.tgz", destfile = "hartford.tgz")
+
+download.file("https://stacks.stanford.edu/file/druid:hp256wp2687/hp256wp2687_ct_hartford_2019_08_13.rds", destfile = "hartford.rds")
+
+```
+
+```{r}
+x <- read_rds("hartford.rds") %>%
+  filter(officer_id_hash == "09739d95d7") %>%
+  filter(arrest_made == "TRUE") %>%
+  select(arrest_made, lat, lng) %>%
+  drop_na(lat, lng)
+
+y <- untar("hartford.tgz")
+
+shape <- st_read("ct_hartford_shapefiles/Hartford_Neighborhoods.shp")
+
+```
+
+```{r}
+locations <- st_as_sf(x, coords = c("lat", "lng"), crs = 4326)
+
+ggplot(shape) +
+  geom_sf(data = locations)
+```
+
+
